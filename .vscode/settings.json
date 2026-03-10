@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^php -l \\*\\.php managers/\\*\\.php classes/\\*\\.php config/\\*\\.php exceptions/\\*\\.php interfaces/\\*\\.php 2>&1 \\| head -50$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

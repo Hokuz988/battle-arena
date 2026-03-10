@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Mínimo</title>
+    <style>
+        .character-card { 
+            display: inline-block;
+            background: blue; 
+            padding: 20px; 
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        .character-card.selected {
+            background: red;
+            border: 2px solid gold;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #log {
+            border: 1px solid green;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste Mínimo de Cliques</h1>
+    
+    <h2>Cards Clicáveis:</h2>
+    <div class="character-card" data-char="sukuna" data-player="1">Sukuna P1</div>
+    <div class="character-card" data-char="goku" data-player="1">Goku P1</div>
+    <div class="character-card" data-char="sukuna" data-player="2">Sukuna P2</div>
+    <div class="character-card" data-char="goku" data-player="2">Goku P2</div>
+    
+    <h2>Botão:</h2>
+    <button id="startBattle">Iniciar Batalha</button>
+    
+    <h2>Log:</h2>
+    <div id="log"></div>
+    
+    <script>
+        let selectedChars = { p1: null, p2: null };
+        
+        function addLog(msg) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.textContent = msg;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        addLog('Script iniciado');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('DOMContentLoaded disparado');
+            
+            // Teste 1: Encontrar cards
+            const cards = document.querySelectorAll('.character-card');
+            addLog(`Cards encontrados: ${cards.length}`);
+            
+            // Teste 2: Adicionar listeners
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const player = this.dataset.player;
+                    const char = this.dataset.char;
+                    addLog(`CLIQUE: Player ${player}, Char ${char}`);
+                    
+                    // Remove seleção anterior
+                    document.querySelectorAll(`.character-card[data-player="${player}"]`).forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    
+                    // Marca novo
+                    this.classList.add('selected');
+                    
+                    if (player === '1') {
+                        selectedChars.p1 = char;
+                    } else {
+                        selectedChars.p2 = char;
+                    }
+                    
+                    addLog(`Estado: ${JSON.stringify(selectedChars)}`);
+                });
+            });
+            
+            // Teste 3: Botão
+            const btn = document.getElementById('startBattle');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    addLog('BOTÃO CLICADO');
+                    addLog(`Seleção: ${JSON.stringify(selectedChars)}`);
+                });
+                addLog('Listener do botão adicionado');
+            } else {
+                addLog('ERRO: Botão não encontrado');
+            }
+        });
+    </script>
+</body>
+</html>

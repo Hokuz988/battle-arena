@@ -1,0 +1,59 @@
+# Battle Arena - Anime Fighters
+
+Um jogo de batalha em turnos inspirado em Pokémon e MUGEN, com 4 personagens de anime e animações especiais.
+
+## Personagens
+
+### Sukuna (Rei das Maldições)
+- **HP:** 1800 | **Energia:** 120 | **Ataque:** 85 | **Defesa:** 40 | **Velocidade:** 70
+- **Habilidades:**
+  - **Cleave:** Corte preciso que se adapta à defesa (30 EN) - 30% de chance de sangramento
+  - **Dismantle:** Múltiplos cortes devastadores (40 EN) - Ignora parte da defesa
+  - **Santuário Maléfico (Malevolent Shrine):** Expansão de domínio (80 EN) - Causa medo e sangramento
+
+### Goku (Super Saiyajin)
+- **HP:** 2000 | **Energia:** 150 | **Ataque:** 95 | **Defesa:** 35 | **Velocidade:** 85
+- **Habilidades:**
+  - **Kamehameha:** Onda de energia concentrada (40 EN) - 20% de chance de boost
+  - **Genki Dama:** Esfera espiritual (60 EN) - Regenera energia
+  - **Teleporte + Kamehameha:** Ataque surpresa (70 EN) - Ignora defesa
+
+### Naruto (Jinchuriki da Kyuubi)
+- **HP:** 1900 | **Energia:** 200 | **Ataque:** 75 | **Defesa:** 45 | **Velocidade:** 80
+- **Habilidades:**
+  - **Rasengan:** Esfera de chakra (35 EN) - 40% de chance de criar clones
+  - **Rasenshuriken:** Shuriken de vento (55 EN) - Envenena por 3 turnos
+  - **Modo Kurama:** Poder da Raposa (75 EN) - Buffs massivos e cura
+
+### Ichigo (Shinigami)
+- **HP:** 1700 | **Energia:** 130 | **Ataque:** 80 | **Defesa:** 50 | **Velocidade:** 90
+- **Habilidades:**
+  - **Getsuga Tensho:** Lâmina de energia negra (40 EN) - 35% de chance de corte profundo
+  - **Bankai:** Liberação da Zanpakuto (60 EN) - Aumenta crítico e velocidade
+  - **Máscara Hollow:** Poder Hollow (50 EN) - Rouba 30% da vida causada
+
+## Animações Especiais
+
+### Sistema de Cortes (Sukuna e Ichigo)
+- **Cleave/Dismantle:** Múltiplos cortes vermelhos (Sukuna) ou pretos (Ichigo) animados
+- Cada corte tem um delay de 100ms, criando um efeito de combo
+- Partículas de sangue para efeitos de sangramento
+
+### Como executar
+1. Clone o repositório
+2. Certifique-se de ter PHP 8.1+ com extensão SQLite
+3. Execute: `php -S localhost:8000`
+4. Acesse: http://localhost:8000
+
+### Banco de Dados
+O SQLite armazena:
+- Histórico de batalhas
+- Estatísticas dos personagens
+- Logs detalhados
+
+### Estrutura
+- **POO:** Classes abstratas, herança, polimorfismo
+- **Interface:** ActionInterface para todas as ações
+- **Encapsulamento:** Todos atributos privados/protegidos
+- **Exceções:** GameException personalizada
+- **Constantes:** MIN_DAMAGE, CRITICAL_MULTIPLIER, etc.

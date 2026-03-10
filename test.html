@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Battle Arena</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>🚀 SERVIDOR FUNCIONANDO! 🚀</h1>
+        <p>Acesse <a href="http://localhost:8000">http://localhost:8000</a> para jogar</p>
+        
+        <div id="test-result"></div>
+    </div>
+    
+    <script>
+        console.log('Test page loaded');
+        
+        // Testa se o JavaScript está funcionando
+        document.getElementById('test-result').innerHTML = `
+            <div style="background: #4CAF50; color: white; padding: 20px; border-radius: 8px; margin: 20px;">
+                <h2>✅ JavaScript Funcionando!</h2>
+                <p>Variáveis globais testadas:</p>
+                <ul>
+                    <li>currentPlayer: ${typeof currentPlayer !== 'undefined' ? currentPlayer : 'não definida'}</li>
+                    <li>player1Ready: ${typeof player1Ready !== 'undefined' ? player1Ready : 'não definida'}</li>
+                    <li>player2Ready: ${typeof player2Ready !== 'undefined' ? player2Ready : 'não definida'}</li>
+                    <li>selectedChars: ${typeof selectedChars !== 'undefined' ? JSON.stringify(selectedChars) : 'não definida'}</li>
+                    <li>battleActive: ${typeof battleActive !== 'undefined' ? battleActive : 'não definida'}</li>
+                </ul>
+            </div>
+        `;
+    </script>
+</body>
+</html>

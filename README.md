@@ -25,7 +25,7 @@ php battle-cli.php
 
 ### 👹 SUKUNA
 - **Forma Normal** - Equilibrado
-- **Forma Puro Poder** - Ataque máximo
+- **ERA HEIAN** - Ataque máximo
 - **Habilidades:** Cleave (sangramento), Dismantle, Malevolent Shrine (dano contínuo)
 
 ### 🧑‍🚀 GOKU

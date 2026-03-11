@@ -48,8 +48,22 @@ class BattleManager {
     private function processTurn() {
         $results = [];
         
-        // Determina ordem pela speed
-        $order = ($this->char1->getSpeed() >= $this->char2->getSpeed()) ? [1, 2] : [2, 1];
+        // Verifica se algum jogador está usando Mugetsu - tem prioridade máxima
+        $mugetsuUser = null;
+        if (isset($this->actions[1]) && $this->actions[1] === 'mugetsu' && 
+            method_exists($this->char1, 'canUseMugetsu') && $this->char1->canUseMugetsu()) {
+            $mugetsuUser = 1;
+        } elseif (isset($this->actions[2]) && $this->actions[2] === 'mugetsu' && 
+                  method_exists($this->char2, 'canUseMugetsu') && $this->char2->canUseMugetsu()) {
+            $mugetsuUser = 2;
+        }
+        
+        // Determina ordem: Mugetsu primeiro, depois pela speed
+        if ($mugetsuUser !== null) {
+            $order = [$mugetsuUser, ($mugetsuUser === 1) ? 2 : 1];
+        } else {
+            $order = ($this->char1->getSpeed() >= $this->char2->getSpeed()) ? [1, 2] : [2, 1];
+        }
         
         foreach ($order as $player) {
             $char = $player == 1 ? $this->char1 : $this->char2;
@@ -72,7 +86,20 @@ class BattleManager {
                 $result['player'] = $player;
                 $result['character'] = $char->getType();
                 $results[] = $result;
-                $this->log[] = $result['message'];
+                
+                // Mensagem combinada mais organizada
+                $message = $result['message'];
+                
+                // Adiciona informação de custo de forma se houver
+                $formResult = $char->maintainForm();
+                if ($formResult['energyLost'] > 0) {
+                    $message .= " | Forma gastou " . $formResult['energyLost'] . " de energia";
+                }
+                if ($formResult['reverted']) {
+                    $message .= " | Perdeu a transformação!";
+                }
+                
+                $this->log[] = $message;
             }
             
             if ($this->char1->getCurrentHp() <= 0 || $this->char2->getCurrentHp() <= 0) {
@@ -80,7 +107,9 @@ class BattleManager {
             }
         }
         
-        // Fim do turno
+        // Fim do turno - reseta estado de defesa e regenera energia
+        $this->char1->setDefending(false);
+        $this->char2->setDefending(false);
         $this->char1->regenerateEnergy();
         $this->char2->regenerateEnergy();
         $this->char1->removeDefenseBoost();
@@ -133,12 +162,12 @@ class BattleManager {
             'player1' => [
                 'name' => $this->player1,
                 'char' => $this->char1->getType(),
-                'stats' => $this->char1->getStats()
+                'stats' => method_exists($this->char1, 'getStats') ? $this->char1->getStats() : []
             ],
             'player2' => [
                 'name' => $this->player2,
                 'char' => $this->char2->getType(),
-                'stats' => $this->char2->getStats()
+                'stats' => method_exists($this->char2, 'getStats') ? $this->char2->getStats() : []
             ]
         ];
     }

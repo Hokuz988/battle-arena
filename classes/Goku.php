@@ -3,6 +3,8 @@
 require_once 'Character.php';
 
 class Goku extends Character {
+    private $baseStats = [];
+    
     public function __construct($name) {
         $this->type = "Goku";
         // HP já era alto; mantido >= 1000
@@ -11,7 +13,52 @@ class Goku extends Character {
         $this->attack = 95;
         $this->defense = 35;
         $this->speed = 85;
+        
+        // Guarda stats base para reset
+        $this->baseStats = [
+            'attack' => $this->attack,
+            'defense' => $this->defense,
+            'speed' => $this->speed
+        ];
+        
         parent::__construct($name);
+    }
+    
+    public function getForms() {
+        return ['Normal', 'Super Saiyajin', 'Ultra Instinto'];
+    }
+    
+    public function getCurrentForm() {
+        return parent::getCurrentForm();
+    }
+    
+    public function applyForm($formName) {
+        if (!in_array($formName, $this->getForms())) {
+            return false;
+        }
+        
+        // Reset stats para base antes de aplicar nova forma
+        $this->attack = $this->baseStats['attack'];
+        $this->defense = $this->baseStats['defense'];
+        $this->speed = $this->baseStats['speed'];
+        
+        $stats = $this->getFormStats($formName);
+        
+        $this->attack += $stats['atk'];
+        $this->defense += $stats['def'];
+        $this->speed += $stats['spd'];
+        
+        return parent::applyForm($formName);
+    }
+    
+    public function getFormStats($formName) {
+        $stats = [
+            'Normal' => ['atk' => 0, 'def' => 0, 'spd' => 0],
+            'Super Saiyajin' => ['atk' => 25, 'def' => 15, 'spd' => 10],
+            'Ultra Instinto' => ['atk' => 35, 'def' => 20, 'spd' => 30]
+        ];
+        
+        return $stats[$formName] ?? ['atk' => 0, 'def' => 0, 'spd' => 0];
     }
     
     public function getSpecialMoves() {
@@ -42,51 +89,132 @@ class Goku extends Character {
     }
     
     public function kamehameha($target) {
-        if (!$this->useEnergy(40)) return false;
+        if (!$this->useEnergy(40)) {
+            return [
+                'damage' => 0,
+                'animation' => 'error',
+                'message' => RED . "⚡ ENERGIA INSUFICIENTE! Você precisa de 40 EN para usar Kamehameha" . RESET
+            ];
+        }
         $this->stats['specials_used']++;
         
         $damage = $this->attack * 1.6 - $target->getDefense() * 0.6;
         $damage = max(self::MIN_DAMAGE, $damage);
-        $target->takeDamage($damage);
-        $this->stats['damage_dealt'] += $damage;
+        
+        // Adiciona variação aleatória ao dano: -7 a +3
+        $damage += rand(-7, 3);
+        $damage = max(self::MIN_DAMAGE, $damage);
+        
+        $result = $this->applyDamageToTarget($target, $damage);
+        
+        if ($result['evaded']) {
+            return [
+                'damage' => 0,
+                'animation' => 'dodge',
+                'message' => $result['message']
+            ];
+        }
         
         return [
-            'damage' => $damage,
+            'damage' => $result['damage'],
             'animation' => 'kamehameha',
-            'message' => "{$this->name} usou Kamehameha causando " . round($damage) . " de dano!"
+            'message' => "{$this->name} usou Kamehameha causando " . round($result['damage']) . " de dano!"
         ];
     }
     
     public function genkidama($target) {
-        if (!$this->useEnergy(60)) return false;
+        if (!$this->useEnergy(60)) {
+            return [
+                'damage' => 0,
+                'animation' => 'error',
+                'message' => RED . "⚡ ENERGIA INSUFICIENTE! Você precisa de 60 EN para usar Genki Dama" . RESET
+            ];
+        }
         $this->stats['specials_used']++;
         
         $damage = $this->attack * 2.0 - $target->getDefense() * 0.4;
         $damage = max(self::MIN_DAMAGE, $damage);
-        $target->takeDamage($damage);
-        $this->currentEnergy = min($this->maxEnergy, $this->currentEnergy + 20);
-        $this->stats['damage_dealt'] += $damage;
+        
+        // Adiciona variação aleatória ao dano: -7 a +3
+        $damage += rand(-7, 3);
+        $damage = max(self::MIN_DAMAGE, $damage);
+        
+        $result = $this->applyDamageToTarget($target, $damage);
+        
+        if (!$result['evaded']) {
+            $this->currentEnergy = min($this->maxEnergy, $this->currentEnergy + 20);
+        }
+        
+        if ($result['evaded']) {
+            return [
+                'damage' => 0,
+                'animation' => 'dodge',
+                'message' => $result['message']
+            ];
+        }
         
         return [
-            'damage' => $damage,
+            'damage' => $result['damage'],
             'animation' => 'genkidama',
-            'message' => "{$this->name} usou Genki Dama causando " . round($damage) . " de dano!"
+            'message' => "{$this->name} usou Genki Dama causando " . round($result['damage']) . " de dano!"
         ];
     }
     
     public function teleport($target) {
-        if (!$this->useEnergy(70)) return false;
+        if (!$this->useEnergy(70)) {
+            return [
+                'damage' => 0,
+                'animation' => 'error',
+                'message' => RED . "⚡ ENERGIA INSUFICIENTE! Você precisa de 70 EN para usar Teleporte" . RESET
+            ];
+        }
         $this->stats['specials_used']++;
         
         $damage = $this->attack * 2.2 - $target->getDefense() * 0.2;
         $damage = max(self::MIN_DAMAGE, $damage);
-        $target->takeDamage($damage);
-        $this->stats['damage_dealt'] += $damage;
+        
+        // Adiciona variação aleatória ao dano: -7 a +3
+        $damage += rand(-7, 3);
+        $damage = max(self::MIN_DAMAGE, $damage);
+        
+        $result = $this->applyDamageToTarget($target, $damage);
+        
+        if ($result['evaded']) {
+            return [
+                'damage' => 0,
+                'animation' => 'dodge',
+                'message' => $result['message']
+            ];
+        }
         
         return [
-            'damage' => $damage,
+            'damage' => $result['damage'],
             'animation' => 'teleport',
-            'message' => "{$this->name} usou Teleporte causando " . round($damage) . " de dano!"
+            'message' => "{$this->name} usou Teleporte causando " . round($result['damage']) . " de dano!"
+        ];
+    }
+    
+    public function takeDamage($damage) {
+        // Verifica se está em Ultra Instinto e tenta desviar
+        if ($this->currentForm === 'Ultra Instinto' && rand(1, 100) <= 60) {
+            // 60% de chance de desvio - não toma dano
+            return [
+                'evaded' => true,
+                'damage' => 0,
+                'message' => "{$this->name} desviou do ataque com Ultra Instinto!"
+            ];
+        }
+        
+        // Dano normal se não desviou
+        $damage = max(0, $damage);
+        $this->currentHp = max(0, $this->currentHp - $damage);
+        $this->stats['damage_taken'] += $damage;
+        
+        // Retorna formato compatível com outros personagens
+        return [
+            'evaded' => false,
+            'damage' => $damage,
+            'message' => null
         ];
     }
     

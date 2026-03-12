@@ -2,9 +2,6 @@
 
 Um jogo de batalha estratégica em tempo real no terminal, com personagens de anime, efeitos especiais e sistema de transformações.
 
-## ✨ NOVIDADES v2.0
-
-✅ **Subaru de Re:Zero** - Novo personagem controlador de tempo
 ✅ **Sistema de Formas** - Cada personagem pode mudar de forma
 ✅ **Efeito de Bleed** - Sukuna causa sangramento contínuo no ataque Cleave
 ✅ **Dano Contínuo** - Expansão de Domínio causa dano por turnos

@@ -25,7 +25,7 @@ class Goku extends Character {
     }
     
     public function getForms() {
-        return ['Normal', 'Super Saiyajin', 'Ultra Instinto'];
+        return ['Normal', 'Super Saiyajin', 'Ultra Instinto', 'Gohan pega o oitão pro pai'];
     }
     
     public function getCurrentForm() {
@@ -55,14 +55,15 @@ class Goku extends Character {
         $stats = [
             'Normal' => ['atk' => 0, 'def' => 0, 'spd' => 0],
             'Super Saiyajin' => ['atk' => 25, 'def' => 15, 'spd' => 10],
-            'Ultra Instinto' => ['atk' => 35, 'def' => 20, 'spd' => 30]
+            'Ultra Instinto' => ['atk' => 35, 'def' => 20, 'spd' => 30],
+            'Gohan pega o oitão pro pai' => ['atk' => 50, 'def' => 40, 'spd' => 25]
         ];
         
         return $stats[$formName] ?? ['atk' => 0, 'def' => 0, 'spd' => 0];
     }
     
     public function getSpecialMoves() {
-        return [
+        $moves = [
             'kamehameha' => [
                 'name' => 'Kamehameha',
                 'cost' => 40,
@@ -82,6 +83,18 @@ class Goku extends Character {
                 'animation' => 'teleport'
             ]
         ];
+        
+        // Adiciona ataque especial apenas se estiver na forma "Gohan pega o oitão pro pai"
+        if ($this->getCurrentForm() === 'Gohan pega o oitão pro pai') {
+            $moves['isso_e_melhor_que_kamehameha'] = [
+                'name' => 'Isso é melhor que Kamehameha',
+                'cost' => 10,
+                'desc' => 'Ataque supremo inspirado no Gohan',
+                'animation' => 'isso_e_melhor_que_kamehameha'
+            ];
+        }
+        
+        return $moves;
     }
     
     public function execute($target) {
@@ -219,5 +232,50 @@ class Goku extends Character {
     }
     
     public function getAnimationType() { return 'energy'; }
+    
+    public function isso_e_melhor_que_kamehameha($target) {
+        // Verifica se está na forma correta
+        if ($this->getCurrentForm() !== 'Gohan pega o oitão pro pai') {
+            return [
+                'damage' => 0,
+                'animation' => 'error',
+                'message' => "⚡ Este ataque só pode ser usado na forma 'Gohan pega o oitão pro pai'!"
+            ];
+        }
+        
+        if (!$this->useEnergy(00)) {
+            return [
+                'damage' => 0,
+                'animation' => 'error',
+                'message' => "⚡ ENERGIA INSUFICIENTE! Você precisa de 100 EN para usar 'Isso é melhor que Kamehameha'"
+            ];
+        }
+        
+        $this->stats['specials_used']++;
+        
+        // Dano massivo inspirado no poder do Gohan
+        $damage = $this->attack * 3.5 - $target->getDefense() * 0.2;
+        $damage = max(self::MIN_DAMAGE, $damage);
+        
+        // Adiciona variação aleatória ao dano: -10 a +10
+        $damage += rand(-10, 10);
+        $damage = max(self::MIN_DAMAGE, $damage);
+        
+        $result = $this->applyDamageToTarget($target, $damage);
+        
+        if ($result['evaded']) {
+            return [
+                'damage' => 0,
+                'animation' => 'dodge',
+                'message' => $result['message']
+            ];
+        }
+        
+        return [
+            'damage' => $result['damage'],
+            'animation' => 'isso_e_melhor_que_kamehameha',
+            'message' => "{$this->name} gritou 'ISSO É MELHOR QUE KAMEHAMEHA!' e deu um tiro, causando " . round($result['damage']) . " de dano MASSIVO!"
+        ];
+    }
 }
 ?>

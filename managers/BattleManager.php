@@ -76,6 +76,16 @@ class BattleManager {
                 $result = $char->attack($target);
             } elseif ($action === 'defend') {
                 $result = $char->defend();
+            } elseif ($action === 'transform') {
+                // Para transformação, o resultado é a forma atual
+                $result = [
+                    'message' => $char->getType() . " se transformou para " . $char->getCurrentForm() . "!",
+                    'animation' => strtolower(str_replace(' ', '_', $char->getCurrentForm())),
+                    'damage' => 0,
+                    'evaded' => false,
+                    'player' => $player,
+                    'character' => $char->getType()
+                ];
             } else {
                 if (method_exists($char, $action)) {
                     $result = $char->$action($target);
@@ -83,8 +93,7 @@ class BattleManager {
             }
             
             if ($result) {
-                $result['player'] = $player;
-                $result['character'] = $char->getType();
+                // Remove duplicação de player e character
                 $results[] = $result;
                 
                 // Mensagem combinada mais organizada
@@ -162,12 +171,26 @@ class BattleManager {
             'player1' => [
                 'name' => $this->player1,
                 'char' => $this->char1->getType(),
-                'stats' => method_exists($this->char1, 'getStats') ? $this->char1->getStats() : []
+                'stats' => [
+                    'hp' => $this->char1->getCurrentHp(),
+                    'max_hp' => $this->char1->getMaxHp(),
+                    'energy' => $this->char1->getCurrentEnergy(),
+                    'max_energy' => $this->char1->getMaxEnergy(),
+                    'attack' => $this->char1->getAttack(),
+                    'defense' => $this->char1->getDefense()
+                ]
             ],
             'player2' => [
                 'name' => $this->player2,
                 'char' => $this->char2->getType(),
-                'stats' => method_exists($this->char2, 'getStats') ? $this->char2->getStats() : []
+                'stats' => [
+                    'hp' => $this->char2->getCurrentHp(),
+                    'max_hp' => $this->char2->getMaxHp(),
+                    'energy' => $this->char2->getCurrentEnergy(),
+                    'max_energy' => $this->char2->getMaxEnergy(),
+                    'attack' => $this->char2->getAttack(),
+                    'defense' => $this->char2->getDefense()
+                ]
             ]
         ];
     }

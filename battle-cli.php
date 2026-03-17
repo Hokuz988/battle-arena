@@ -14,7 +14,6 @@ require_once __DIR__ . '/classes/Sukuna.php';
 require_once __DIR__ . '/classes/Goku.php';
 require_once __DIR__ . '/classes/Naruto.php';
 require_once __DIR__ . '/classes/Ichigo.php';
-require_once __DIR__ . '/classes/Subaru.php';
 require_once __DIR__ . '/managers/BattleManager.php';
 
 const RESET = "\033[0m";
@@ -38,7 +37,6 @@ class TerminalBattle {
     private $selectedCharacters = [];
     private $playerForms = ['Normal', 'Normal'];
     private $effects = [];
-    private $returnByDeathUsage = [0, 0];
     
     public function __construct() {
         $this->clearScreen();
@@ -150,7 +148,7 @@ class TerminalBattle {
         echo str_repeat("=", 60) . "\n\n";
         
         $characters = [
-            'Sukuna', 'Goku', 'Naruto', 'Ichigo', 'Subaru'
+            'Sukuna', 'Goku', 'Naruto', 'Ichigo'
         ];
         
         for ($p = 1; $p <= 2; $p++) {
@@ -256,30 +254,46 @@ class TerminalBattle {
             $energyPercent = ($char->getCurrentEnergy() / $char->getMaxEnergy()) * 100;
             
             echo $color . BOLD . $this->playerNames[$p - 1] . RESET . "\n";
-            echo "Personagem: " . $char->getType() . " (" . $this->playerForms[$p - 1] . ")\n\n";
+            echo "┌─────────────────────────────────────────────────────────────────────┐\n";
+            echo "│ " . $char->getType() . " | " . $this->playerForms[$p - 1] . str_repeat(" ", 61 - strlen($char->getType()) - strlen($this->playerForms[$p - 1]) - 3) . "│\n";
+            echo "├─────────────────────────────────────────────────────────────────────┤\n";
+            echo "│ " . RED . "❤️ " . $this->drawBar($hpPercent, 30, RED) . " " . sprintf("%4d", $char->getCurrentHp()) . RESET . " │ " . CYAN . "⚡ " . $this->drawBar($energyPercent, 30, CYAN) . " " . sprintf("%4d", $char->getCurrentEnergy()) . RESET . str_repeat(" ", 9) . "│\n";
+            echo "└─────────────────────────────────────────────────────────────────────┘\n";
             
-            echo "❤️  HP:     " . $this->drawBar($hpPercent, 35);
-            echo sprintf(" %d/%d\n", $char->getCurrentHp(), $char->getMaxHp());
-            
-            echo "⚡ Energia: " . $this->drawBar($energyPercent, 35, CYAN);
-            echo sprintf(" %d/%d\n", $char->getCurrentEnergy(), $char->getMaxEnergy());
-            
-            if (!empty($this->effects[$p])) {
-                echo "Efeitos: " . MAGENTA . implode(", ", $this->effects[$p]) . RESET . "\n";
+            // Mostra efeitos ativos de forma compacta horizontal
+            $activeEffects = $char->getEffects();
+            if (!empty($activeEffects)) {
+                echo "┌─────────────────────────────────────────────────────────────────────┐\n";
+                echo "│ " . MAGENTA . "⚡ EFEITOS" . RESET . str_repeat(" ", 54) . "│\n";
+                echo "├─────────────────────────────────────────────────────────────────────┤\n";
+                $effectLine = "│";
+                foreach ($activeEffects as $effect) {
+                    $icon = "";
+                    $duration = $effect['duration'] ?? 0;
+                    switch($effect['type']) {
+                        case 'burn': $icon = "🔥"; break;
+                        case 'bleed': $icon = "🩸"; break;
+                        case 'domain': $icon = "🏯"; break;
+                    }
+                    $effectLine .= " $icon($duration)";
+                }
+                echo $effectLine . str_repeat(" ", 67 - strlen($effectLine)) . "│\n";
+                echo "└─────────────────────────────────────────────────────────────────────┘\n";
             }
             
             echo "\n";
         }
         
-        echo str_repeat("=", 60) . "\n";
-        echo YELLOW . "HISTORICO (últimos 5 eventos)\n" . RESET;
+        echo str_repeat("═", 69) . "\n";
+        echo YELLOW . "⚡ HISTÓRICO (últimos 5 eventos)" . RESET . "\n";
+        echo "├─────────────────────────────────────────────────────────────────────┤\n";
         
         $logs = array_slice($state['log'], -5);
         foreach ($logs as $log) {
-            echo "  $log\n";
+            echo "│ " . str_pad($log, 65, " ", STR_PAD_RIGHT) . "│\n";
         }
         
-        echo str_repeat("=", 60) . "\n\n";
+        echo "└─────────────────────────────────────────────────────────────────────┘\n\n";
     }
     
     private function drawBar($percent, $width, $color = GREEN) {
@@ -296,11 +310,11 @@ class TerminalBattle {
         }
         
         // Usa caracteres Unicode mais elegantes
-        $filledChar = "█";
+        $filledChar = "▓";
         $emptyChar = "░";
         
         // Adiciona bordas arredondadas na barra
-        $bar = $barColor . "╟" . str_repeat($filledChar, $filled) . str_repeat($emptyChar, $empty) . "╢" . RESET;
+        $bar = $barColor . "╠" . str_repeat($filledChar, $filled) . str_repeat($emptyChar, $empty) . "╣" . RESET;
         
         // Adiciona percentual formatado
         $percentText = sprintf("%3.0f%%", $percent);
@@ -360,20 +374,6 @@ class TerminalBattle {
         $state = $this->battleManager->getState();
         $char = ($player === 1) ? $state['player1']['character'] : $state['player2']['character'];
         
-        if ($action === 'returnbydeath' && $char->getType() === 'Subaru') {
-            if ($this->returnByDeathUsage[$player - 1] < 2) {
-                $this->returnByDeathUsage[$player - 1]++;
-                $char->setCurrentHp($char->getMaxHp());
-                $char->setCurrentEnergy($char->getMaxEnergy());
-                unset($this->effects[$player]);
-                echo MAGENTA . BOLD . "⏰ RETURN BY DEATH ATIVADO! (uso " . $this->returnByDeathUsage[$player - 1] . "/2)\n" . RESET;
-                sleep(1);
-                $this->turn = 1;
-                $this->effects = [];
-                return;
-            }
-        }
-        
         $this->battleManager->setAction($player, $action);
     }
     
@@ -406,10 +406,9 @@ class TerminalBattle {
         $forms = $character->getForms();
         $costs = [
             'Sukuna' => ['Normal' => 0, 'HEIAN ERA' => 40],
-            'Goku' => ['Normal' => 0, 'Super Saiyajin' => 35, 'Ultra Instinto' => 60],
+            'Goku' => ['Normal' => 0, 'Super Saiyajin' => 35, 'Ultra Instinto' => 60, 'Gohan pega o oitão pro pai' => 40 ],
             'Naruto' => ['Normal' => 0, 'Modo Kurama' => 45, 'Sabio dos Seis Caminhos' => 70],
             'Ichigo' => ['Normal' => 0, 'Bankai' => 50, 'Ichigo Arrancar' => 45],
-            'Subaru' => ['Normal' => 0, 'Resolvido' => 30, 'Loop Master' => 60]
         ];
         
         $charCosts = $costs[$character->getType()] ?? [];
@@ -437,9 +436,13 @@ class TerminalBattle {
                 // Verifica energia ANTES de mostrar ASCII
                 if ($character->getCurrentEnergy() >= $charCosts[$formName]) {
                     // Mostra ASCII da forma sem limpar tela
-                    $formKey = strtolower($character->getType()) . '_' . strtolower(str_replace([' ', 'ç', 'ã'], ['_', 'c', 'a'], $formName));
-                    // Remove duplicação do nome do personagem no início
-                    $formKey = strtolower($character->getType()) . '_' . str_replace(strtolower($character->getType()) . '_', '', strtolower(str_replace([' ', 'ç', 'ã'], ['_', 'c', 'a'], $formName)));
+                    if ($formName === 'Gohan pega o oitão pro pai') {
+                        $formKey = 'gohan_pega_o_oitao_pro_pai';
+                    } else {
+                        $formKey = strtolower($character->getType()) . '_' . strtolower(str_replace([' ', 'ç', 'ã'], ['_', 'c', 'a'], $formName));
+                        // Remove duplicação do nome do personagem no início
+                        $formKey = strtolower($character->getType()) . '_' . str_replace(strtolower($character->getType()) . '_', '', strtolower(str_replace([' ', 'ç', 'ã'], ['_', 'c', 'a'], $formName)));
+                    }
                     $ascii = ASCIIArts::getASCII($formKey);
                     if ($ascii) {
                         echo "\n" . $ascii . "\n";
@@ -516,6 +519,16 @@ class TerminalBattle {
                         $canUse = false;
                         $errorMessage = RED . BOLD . "⚠️ MUGETSU só pode ser usado com 10% ou menos de HP!" . RESET;
                     }
+                } 
+                // Verificação especial para ataque do Goku
+                else if ($selectedMove === 'isso_e_melhor_que_kamehameha' && $character->getType() === 'Goku') {
+                    if ($character->getCurrentForm() !== 'Gohan pega o oitão pro pai') {
+                        $canUse = false;
+                        $errorMessage = RED . BOLD . "⚠️ Este ataque só pode ser usado na forma 'Gohan pega o oitão pro pai'!" . RESET;
+                    } else if ($character->getCurrentEnergy() < $moves[$selectedMove]['cost']) {
+                        $canUse = false;
+                        $errorMessage = RED . BOLD . "⚡ ENERGIA INSUFICIENTE! Você precisa de " . $moves[$selectedMove]['cost'] . " EN para usar " . $moves[$selectedMove]['name'] . RESET;
+                    }
                 } else {
                     // Verificação normal de energia para outras habilidades
                     if ($character->getCurrentEnergy() < $moves[$selectedMove]['cost']) {
@@ -555,6 +568,8 @@ class TerminalBattle {
                             'desc' => 'Ataque com sangramento continuo'],
                 'dismantle' => ['name' => 'DISMANTLE', 'cost' => 40,
                                'desc' => 'Multiplos cortes destrutivos'],
+                'fuga' => ['name' => 'FUGA', 'cost' => 25,
+                           'desc' => 'Tecnica de fogo (burn em si mesmo ou Kamino Fuga)'],
                 'shrine' => ['name' => 'MALEVOLENT SHRINE', 'cost' => 80,
                             'desc' => 'Dano continuo por 3 turnos']
             ],
@@ -564,7 +579,9 @@ class TerminalBattle {
                 'genkidama' => ['name' => 'GENKIDAMA', 'cost' => 60,
                                'desc' => 'Bomba cosmica'],
                 'teleport' => ['name' => 'Teleporte', 'cost' => 70,
-                              'desc' => 'Esquiva com contraataque']
+                              'desc' => 'Esquiva com contraataque'],
+                'isso_e_melhor_que_kamehameha' => ['name' => 'ISSO É MELHOR QUE KAMEHAMEHA', 'cost' => 100,
+                                                   'desc' => 'Ataque supremo (forma especial)']
             ],
             'Naruto' => [
                 'rasengan' => ['name' => 'RASENGAN', 'cost' => 35,
@@ -583,14 +600,6 @@ class TerminalBattle {
                             'desc' => 'Transformacao sinistra'],
                 'mugetsu' => ['name' => 'MUGETSU', 'cost' => 0,
                              'desc' => 'Ataque final (apenas com 10% HP)']
-            ],
-            'Subaru' => [
-                'whitewhale' => ['name' => 'WHITE WHALE', 'cost' => 50,
-                                'desc' => 'Poder do Leviata Branco'],
-                'returnbydeath' => ['name' => 'RETURN BY DEATH', 'cost' => 90,
-                                   'desc' => 'Volta no tempo e restaura HP'],
-                'packed_lunch' => ['name' => 'PACKED LUNCH', 'cost' => 35,
-                                  'desc' => 'Ataque com a mochila']
             ]
         ];
         return $moves[$type] ?? [];

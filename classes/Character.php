@@ -140,9 +140,25 @@ abstract class Character implements ActionInterface {
             }
             
             if ($effect['type'] === 'domain') {
-                $domainDamage = $this->maxHp * 0.01;
+                $domainDamage = $this->maxHp * 0.05;
                 $damage += $domainDamage;
                 $messages[] = "🏯 Expansão de Domínio: " . round($domainDamage) . " de dano";
+                
+                $this->effects[$key]['duration']--;
+                if ($this->effects[$key]['duration'] <= 0) {
+                    unset($this->effects[$key]);
+                }
+            }
+            
+            if ($effect['type'] === 'burn') {
+                $burnDamage = $this->maxHp * 0.08;
+                $damage += $burnDamage;
+                $messages[] = "🔥 Queimadura: " . round($burnDamage) . " de dano";
+                
+                // Toca áudio de burn se for a primeira aplicação
+                if ($effect['duration'] == 3) { // Assume que burn começa com 3 turnos
+                    // Áudio será tocado quando o efeito for aplicado (em Sukuna.php)
+                }
                 
                 $this->effects[$key]['duration']--;
                 if ($this->effects[$key]['duration'] <= 0) {
@@ -197,7 +213,7 @@ abstract class Character implements ActionInterface {
         $isBlackFlash = rand(1, 100) <= $blackFlashChance;
         
         if ($isBlackFlash) {
-            $damage *= 3.0; // Multiplicador de Black Flash
+            $damage *= 2.0; // Multiplicador de Black Flash
             $this->stats['critical_hits']++;
             $this->blackFlashStreak++;
             
@@ -304,15 +320,14 @@ abstract class Character implements ActionInterface {
         $this->currentForm = $formName;
         
         // Define o custo da forma
-        $costs = [
+        $custos = [
             'Sukuna' => ['Normal' => 0, 'HEIAN ERA' => 40],
-            'Goku' => ['Normal' => 0, 'Super Saiyajin' => 35, 'Ultra Instinto' => 60],
+            'Goku' => ['Normal' => 0, 'Super Saiyajin' => 35, 'Ultra Instinto' => 60, 'Gohan pega o oitão pro pai' => 40],
             'Naruto' => ['Normal' => 0, 'Modo Kurama' => 45, 'Sabio dos Seis Caminhos' => 70],
-            'Ichigo' => ['Normal' => 0, 'Bankai' => 50, 'Ichigo Arrancar' => 45],
-            'Subaru' => ['Normal' => 0, 'Resolvido' => 30, 'Loop Master' => 60]
+            'Ichigo' => ['Normal' => 0, 'Bankai' => 50, 'Ichigo Arrancar' => 45]
         ];
         
-        $charCosts = $costs[$this->type] ?? [];
+        $charCosts = $custos[$this->type] ?? [];
         $this->formCost = $charCosts[$formName] ?? 0;
         
         // Aplica bônus da forma
@@ -326,6 +341,11 @@ abstract class Character implements ActionInterface {
                 $this->attack *= 2.0;
                 $this->defense *= 1.8;
                 $this->speed *= 2.2;
+                break;
+            case 'Gohan pega o oitão pro pai':
+                $this->attack *= 2.3;
+                $this->defense *= 2.0;
+                $this->speed *= 1.8;
                 break;
             case 'Modo Kurama':
                 $this->attack *= 1.6;
@@ -351,16 +371,6 @@ abstract class Character implements ActionInterface {
                 $this->attack *= 1.8;
                 $this->defense *= 1.6;
                 $this->speed *= 1.7;
-                break;
-            case 'Resolvido':
-                $this->attack *= 1.4;
-                $this->defense *= 1.3;
-                $this->speed *= 1.5;
-                break;
-            case 'Loop Master':
-                $this->attack *= 1.7;
-                $this->defense *= 1.5;
-                $this->speed *= 1.9;
                 break;
         }
         
@@ -422,6 +432,11 @@ abstract class Character implements ActionInterface {
     }
     
     public function canRegenerateEnergy() {
+        // Goku só regenera se estiver defendendo (não em forma Normal)
+        if ($this->type === 'Goku') {
+            return $this->isDefending;
+        }
+        
         // Naruto sempre pode regenerar (por causa da Kurama)
         if ($this->type === 'Naruto') {
             return true;
@@ -429,6 +444,17 @@ abstract class Character implements ActionInterface {
         
         // Outros só regeneram se estiverem na forma Normal ou defendendo
         return $this->currentForm === 'Normal' || $this->isDefending;
+    }
+    
+    protected function playBurnSound() {
+        $audioFile = __DIR__ . '/../Audios/gta-san-andreas-cj-on-fire-sound.mp3';
+        
+        // Verifica se o arquivo de áudio existe
+        if (file_exists($audioFile)) {
+            // Toca o áudio por 5 segundos em background, sem bloquear
+            $command = "timeout 5s ffplay -nodisp -autoexit '$audioFile' >/dev/null 2>&1 &";
+            exec($command);
+        }
     }
     
     abstract public function getSpecialMoves();

@@ -88,6 +88,12 @@ class Sukuna extends Character {
                 'desc' => 'Múltiplos cortes',
                 'animation' => 'slashing'
             ],
+            'fuga' => [
+                'name' => 'Fuga',
+                'cost' => 25,
+                'desc' => 'Técnica de fogo (burn ou Kamino Fuga se inimigo tem domain)',
+                'animation' => 'fire'
+            ],
             'shrine' => [
                 'name' => 'Malevolent Shrine',
                 'cost' => 80,
@@ -207,13 +213,11 @@ class Sukuna extends Character {
         $result = $this->applyDamageToTarget($target, $damage);
         
         // Aplica efeitos de domínio mesmo se desviou (habilidade de área)
-        if (!$result['evaded']) {
-            // 90% de chance de aplicar todos os efeitos
-            if (rand(1, 100) <= 90) {
-                $target->addEffect(['type' => 'fear', 'duration' => 2, 'icon' => '😨']);
-                $target->addEffect(['type' => 'bleed', 'duration' => 5, 'icon' => '🩸']);
-                $target->addEffect(['type' => 'domain', 'duration' => 5, 'icon' => '🏯']);
-            }
+        // 90% de chance de aplicar todos os efeitos
+        if (rand(1, 100) <= 90) {
+            $target->addEffect(['type' => 'fear', 'duration' => 2, 'icon' => '😨']);
+            $target->addEffect(['type' => 'bleed', 'duration' => 5, 'icon' => '🩸']);
+            $target->addEffect(['type' => 'domain', 'duration' => 4, 'icon' => '🏯']);
         }
         
         if ($result['evaded']) {
@@ -229,6 +233,80 @@ class Sukuna extends Character {
             'animation' => 'slashing',
             'message' => "{$this->name} usou Malevolent Shrine causando " . round($result['damage']) . " de dano!"
         ];
+    }
+    
+    public function fuga($target) {
+        if (!$this->useEnergy(25)) {
+            return [
+                'damage' => 0,
+                'animation' => 'error',
+                'message' => "⚡ ENERGIA INSUFICIENTE! Você precisa de 25 EN para usar Fuga"
+            ];
+        }
+        $this->stats['specials_used']++;
+        
+        // Verifica se o inimigo tem o efeito 'domain' (Expansão de Domínio)
+        $enemyEffects = $target->getEffects();
+        $hasDomain = false;
+        
+        // Debug: verificar os efeitos do inimigo
+        if (!empty($enemyEffects)) {
+            foreach ($enemyEffects as $effect) {
+                if ($effect['type'] === 'domain') {
+                    $hasDomain = true;
+                    break;
+                }
+            }
+        }
+        
+        if ($hasDomain) {
+            // KAMINO FUGA - Ataca o inimigo
+            echo "\n🔥 KAMINO FUGA ATIVADO! 🔥\n";
+            sleep(1);
+            
+            $damage = $this->attack * 2.2 - $target->getDefense() * 0.3;
+            $damage = max(self::MIN_DAMAGE, $damage);
+            
+            // Adiciona variação aleatória ao dano: -7 a +3
+            $damage += rand(-7, 3);
+            $damage = max(self::MIN_DAMAGE, $damage);
+            
+            // Aplica dano diretamente
+            $target->takeDamage($damage);
+            
+            return [
+                'damage' => $damage,
+                'animation' => 'fire',
+                'message' => "{$this->name} usou KAMINO FUGA causando " . round($damage) . " de dano!"
+            ];
+        } else {
+            // FUGA normal - Causa dano e aplica burn no inimigo
+            $damage = $this->attack * 1.2;
+            $damage = max(self::MIN_DAMAGE, $damage);
+            
+            // Adiciona variação aleatória ao dano: -7 a +3
+            $damage += rand(-7, 3);
+            $damage = max(self::MIN_DAMAGE, $damage);
+            
+            // Aplica dano ao inimigo
+            $target->takeDamage($damage);
+            
+            // Aplica burn no inimigo
+            $target->addEffect([
+                'type' => 'burn',
+                'duration' => 3,
+                'icon' => '🔥'
+            ]);
+            
+            // Toca áudio de burn ao aplicar o efeito (não bloqueante)
+            $this->playBurnSound();
+            
+            return [
+                'damage' => $damage,
+                'animation' => 'fire',
+                'message' => "{$this->name} usou FUGA causando " . round($damage) . " de dano!"
+            ];
+        }
     }
     
     public function getAnimationType() { return 'slashing'; }

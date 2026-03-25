@@ -42,12 +42,7 @@ php battle-cli.php
 - **Bankai** - Poder liberado
 - **Hollow Ichigo** - Forma sinistra
 - **Habilidades:** Getsuga Tensho, Bankai, Hollow Form
-
-### 🌀 SUBARU (NOVO!)
-- **Forma Normal** - Defensor
-- **Resolvido** - Confiante
-- **Loop Master** - Controlador absoluto
-- **Habilidades:** White Whale, Return by Death, Packed Lunch
+    
 
 ## 💥 SISTEMA DE EFEITOS
 

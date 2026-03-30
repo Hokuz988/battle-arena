@@ -59,18 +59,14 @@ class TerminalBattle {
         " . RESET . "\n";
     }
     
-    // Função para ler input sem precisar de Enter (para opções)
     private function readChar() {
-        // Tenta usar comando do sistema para ler um caractere sem Enter
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            // Windows
             $input = shell_exec('powershell -Command "$Host.UI.RawUI.ReadKey(\'NoEcho,IncludeKeyDown\')"');
             if ($input) {
                 $char = trim(explode(':', $input)[1] ?? '');
                 return $char;
             }
         } else {
-            // Linux/Mac
             $stty_mode = shell_exec('stty -g');
             shell_exec('stty -icanon -echo');
             $input = fread(STDIN, 1);
@@ -81,7 +77,6 @@ class TerminalBattle {
             }
         }
         
-        // Fallback para readline ou fgets
         if (function_exists('readline')) {
             $input = readline();
             return trim($input);
@@ -90,7 +85,6 @@ class TerminalBattle {
         return trim(fgets(STDIN));
     }
     
-    // Função para ler texto completo (para nomes)
     private function readLine($prompt = "") {
         echo $prompt;
         if (function_exists('readline')) {
@@ -126,7 +120,7 @@ class TerminalBattle {
                     echo GREEN . BOLD . "Obrigado por jogar Battle Arena!\n" . RESET;
                     exit(0);
                 default:
-                    echo RED . BOLD . "❌ OPCAO INVALIDA! Digite 1, 2 ou 0\n" . RESET;
+                    echo RED . BOLD . "OPCAO INVALIDA! Digite 1, 2 ou 0\n" . RESET;
                     sleep(1);
             }
         }
@@ -179,7 +173,7 @@ class TerminalBattle {
                     }
                     break;
                 }
-                echo RED . BOLD . "❌ OPCAO INVALIDA! Escolha entre 1 e " . count($characters) . "\n" . RESET;
+                echo RED . BOLD . "OPCAO INVALIDA! Escolha entre 1 e " . count($characters) . "\n" . RESET;
             }
         }
         
@@ -219,11 +213,9 @@ class TerminalBattle {
             
             $this->applyOngoingEffects();
             
-            // Executa turno do jogador 1 sem limpar tela
             $this->executeTurn(1);
             usleep(500000);
             
-            // Verifica se o jogo acabou após o turno do jogador 1
             $state = $this->battleManager->getState();
             if ($state['player1']['character']->getCurrentHp() <= 0 || 
                 $state['player2']['character']->getCurrentHp() <= 0) {
@@ -231,7 +223,6 @@ class TerminalBattle {
                 break;
             }
             
-            // Executa turno do jogador 2 sem limpar tela
             $this->executeTurn(2);
             usleep(500000);
             
@@ -300,7 +291,6 @@ class TerminalBattle {
         $filled = intval(($percent / 100) * $width);
         $empty = $width - $filled;
         
-        // Muda cor baseada no percentual
         if ($percent > 50) {
             $barColor = GREEN;
         } elseif ($percent > 20) {
@@ -309,11 +299,9 @@ class TerminalBattle {
             $barColor = RED;
         }
         
-        // Usa caracteres Unicode mais elegantes
         $filledChar = "▓";
         $emptyChar = "░";
         
-        // Adiciona bordas arredondadas na barra
         $bar = $barColor . "╠" . str_repeat($filledChar, $filled) . str_repeat($emptyChar, $empty) . "╣" . RESET;
         
         // Adiciona percentual formatado
@@ -364,7 +352,7 @@ class TerminalBattle {
                     echo YELLOW . "Voltando ao menu de ação...\n" . RESET;
                     break;
                 default:
-                    echo RED . BOLD . "❌ OPCAO INVALIDA! Digite 1, 2, 3, 4, 5 ou 0\n" . RESET;
+                    echo RED . BOLD . "OPCAO INVALIDA! Digite 1, 2, 3, 4, 5 ou 0\n" . RESET;
                     sleep(1);
             }
         }
@@ -383,7 +371,6 @@ class TerminalBattle {
         for ($p = 1; $p <= 2; $p++) {
             $char = ($p === 1) ? $state['player1']['character'] : $state['player2']['character'];
             
-            // Regeneração de energia específica do personagem
             if (method_exists($char, 'regenerateEnergy')) {
                 $oldEnergy = $char->getCurrentEnergy();
                 $char->regenerateEnergy();
@@ -393,7 +380,6 @@ class TerminalBattle {
                 }
             }
             
-            // Aplica efeitos contínuos
             $messages = $char->applyEffects();
             
             foreach ($messages as $message) {
@@ -427,46 +413,42 @@ class TerminalBattle {
             
             if ($choice === '0') {
                 echo YELLOW . "Voltando ao menu de ação...\n" . RESET;
-                return; // Volta para showActionMenu
+                return; 
             }
             
             if (is_numeric($choice) && $choice >= 1 && $choice <= count($forms)) {
                 $formName = $forms[$choice - 1];
                 
-                // Verifica energia ANTES de mostrar ASCII
                 if ($character->getCurrentEnergy() >= $charCosts[$formName]) {
-                    // Mostra ASCII da forma sem limpar tela
                     if ($formName === 'Gohan pega o oitão pro pai') {
                         $formKey = 'gohan_pega_o_oitao_pro_pai';
                     } else {
                         $formKey = strtolower($character->getType()) . '_' . strtolower(str_replace([' ', 'ç', 'ã'], ['_', 'c', 'a'], $formName));
-                        // Remove duplicação do nome do personagem no início
                         $formKey = strtolower($character->getType()) . '_' . str_replace(strtolower($character->getType()) . '_', '', strtolower(str_replace([' ', 'ç', 'ã'], ['_', 'c', 'a'], $formName)));
                     }
                     $ascii = ASCIIArts::getASCII($formKey);
                     if ($ascii) {
                         echo "\n" . $ascii . "\n";
                         sleep(2);
-                        // Não limpa tela para manter menu visível entre jogadores
                     }
                 } else {
                     echo RED . BOLD . "⚡ ENERGIA INSUFICIENTE! Você precisa de " . $charCosts[$formName] . " EN para usar " . $formName . "\n" . RESET;
                     sleep(1);
-                    continue; // Continua no loop de formas
+                    continue; 
                 }
                 
                 if ($character->applyForm($formName)) {
                     $this->playerForms[$player - 1] = $formName;
                     $character->useEnergy($charCosts[$formName]);
                     $this->executeAction($player, 'transform');
-                    return; // Executa ação e termina turno
+                    return; 
                 } else {
                     echo RED . "FALHA AO TROCAR DE FORMA!\n" . RESET;
                     sleep(1);
-                    continue; // Continua no loop de formas
+                    continue;
                 }
             } else {
-                echo RED . BOLD . "❌ OPCAO INVALIDA! Digite 1-" . count($forms) . " ou 0\n" . RESET;
+                echo RED . BOLD . "OPCAO INVALIDA! Digite 1-" . count($forms) . " ou 0\n" . RESET;
                 sleep(1);
             }
         }
@@ -479,13 +461,11 @@ class TerminalBattle {
             echo "\nHABILIDADES ESPECIAIS:\n";
             $idx = 1;
             foreach ($moves as $key => $move) {
-                // Verificação especial para Mugetsu
                 if ($key === 'mugetsu' && $character->getType() === 'Ichigo') {
                     $canUse = (method_exists($character, 'canUseMugetsu') && $character->canUseMugetsu()) ? "✓" : "✗";
                     $hpPercent = ($character->getCurrentHp() / $character->getMaxHp()) * 100;
                     echo sprintf("[%d]%s %s (HP: %.0f%%) ", $idx, $canUse, $move['name'], $hpPercent);
                 } else {
-                    // Verifica se Mugetsu já foi usado (bloqueia outras habilidades)
                     if ($character->getType() === 'Ichigo' && method_exists($character, 'hasUsedMugetsu') && $character->hasUsedMugetsu()) {
                         $canUse = "✗";
                         echo sprintf("[%d]%s %s (BLOQUEADO) ", $idx, $canUse, $move['name']);
@@ -509,18 +489,15 @@ class TerminalBattle {
                 $moveKeys = array_keys($moves);
                 $selectedMove = $moveKeys[$choice - 1];
                 
-                // Verifica energia e condições especiais ANTES de mostrar ASCII
                 $canUse = true;
                 $errorMessage = "";
                 
-                // Verificação especial para Mugetsu
                 if ($selectedMove === 'mugetsu' && $character->getType() === 'Ichigo') {
                     if (!method_exists($character, 'canUseMugetsu') || !$character->canUseMugetsu()) {
                         $canUse = false;
                         $errorMessage = RED . BOLD . "⚠️ MUGETSU só pode ser usado com 10% ou menos de HP!" . RESET;
                     }
                 } 
-                // Verificação especial para ataque do Goku
                 else if ($selectedMove === 'isso_e_melhor_que_kamehameha' && $character->getType() === 'Goku') {
                     if ($character->getCurrentForm() !== 'Gohan pega o oitão pro pai') {
                         $canUse = false;
@@ -530,7 +507,6 @@ class TerminalBattle {
                         $errorMessage = RED . BOLD . "⚡ ENERGIA INSUFICIENTE! Você precisa de " . $moves[$selectedMove]['cost'] . " EN para usar " . $moves[$selectedMove]['name'] . RESET;
                     }
                 } else {
-                    // Verificação normal de energia para outras habilidades
                     if ($character->getCurrentEnergy() < $moves[$selectedMove]['cost']) {
                         $canUse = false;
                         $errorMessage = RED . BOLD . "⚡ ENERGIA INSUFICIENTE! Você precisa de " . $moves[$selectedMove]['cost'] . " EN para usar " . $moves[$selectedMove]['name'] . RESET;
@@ -538,24 +514,20 @@ class TerminalBattle {
                 }
                 
                 if ($canUse) {
-                    // Mostra ASCII art sem limpar tela (mantém menu visível)
                     $ascii = ASCIIArts::getASCII($selectedMove);
                     if ($ascii) {
                         echo "\n" . $ascii . "\n";
                         sleep(2);
-                        // Não limpa tela para manter menu visível entre jogadores
                     }
                     
                     $this->executeAction($player, $selectedMove);
-                    return; // Executa ação e termina turno
+                    return;
                 } else {
-                    // Erro - mostra mensagem e NÃO executa a ação
                     echo $errorMessage . "\n";
                     sleep(1);
-                    continue; // Volta para o menu sem executar ação
                 }
             } else {
-                echo RED . BOLD . "❌ OPCAO INVALIDA! Digite 1-" . count($moves) . " ou 0\n" . RESET;
+                echo RED . BOLD . "OPCAO INVALIDA! Digite 1-" . count($moves) . " ou 0\n" . RESET;
                 sleep(1);
             }
         }
@@ -633,7 +605,6 @@ class TerminalBattle {
 ╚════════════════════════════════════════════════════════════════╝
         " . RESET . "\n\n";
         
-        // Mostra ASCII do personagem vencedor
         $characterKey = strtolower($winnerChar->getType()) . '_character';
         $ascii = ASCIIArts::getASCII($characterKey);
         if ($ascii) {

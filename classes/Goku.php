@@ -1,18 +1,22 @@
 <?php
 // classes/Goku.php
 require_once 'Character.php';
+require_once __DIR__ . '/../config/CharacterDatabase.php';
 
 class Goku extends Character {
     private $baseStats = [];
     
     public function __construct($name) {
+        // Carrega stats do JSON
+        $db = CharacterDatabase::getInstance();
+        $stats = $db->getCharacterBaseStats('goku');
+        
         $this->type = "Goku";
-        // HP já era alto; mantido >= 1000
-        $this->maxHp = 2000;
-        $this->maxEnergy = 150;
-        $this->attack = 95;
-        $this->defense = 35;
-        $this->speed = 85;
+        $this->maxHp = $stats['hp'];
+        $this->maxEnergy = $stats['energy'];
+        $this->attack = $stats['attack'];
+        $this->defense = $stats['defense'];
+        $this->speed = $stats['speed'];
         
         // Guarda stats base para reset
         $this->baseStats = [

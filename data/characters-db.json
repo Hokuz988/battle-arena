@@ -1,0 +1,439 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-04-02",
+    "totalCharacters": 5,
+    "totalMoves": 20
+  },
+  "characters": {
+    "sukuna": {
+      "id": "sukuna",
+      "name": "Sukuna",
+      "anime": "Jujutsu Kaisen",
+      "description": "O Rei das Maldições, o mais forte sorcerer da história",
+      "baseStats": {
+        "hp": 1800,
+        "energy": 400,
+        "attack": 85,
+        "defense": 40,
+        "speed": 70,
+        "criticalChance": 15
+      },
+      "forms": {
+        "normal": {
+          "name": "Normal",
+          "cost": 0,
+          "multipliers": {
+            "attack": 1,
+            "defense": 1,
+            "speed": 1
+          }
+        },
+        "heian_era": {
+          "name": "HEIAN ERA",
+          "cost": 40,
+          "multipliers": {
+            "attack": 1.8,
+            "defense": 1.6,
+            "speed": 1.7
+          }
+        }
+      },
+      "abilities": {
+        "cleave": {
+          "id": "cleave",
+          "name": "CLEAVE",
+          "cost": 30,
+          "description": "Ataque com sangramento continuo",
+          "type": "damage",
+          "effect": "bleed",
+          "damage": 1.2,
+          "duration": 3
+        },
+        "dismantle": {
+          "id": "dismantle",
+          "name": "DISMANTLE",
+          "cost": 40,
+          "description": "Multiplos cortes destrutivos",
+          "type": "damage",
+          "effect": "none",
+          "damage": 1.5,
+          "hits": 3
+        },
+        "fuga": {
+          "id": "fuga",
+          "name": "FUGA",
+          "cost": 25,
+          "description": "Tecnica de fogo (burn em si mesmo ou Kamino Fuga)",
+          "type": "damage",
+          "effect": "burn",
+          "damage": 1,
+          "duration": 3
+        },
+        "shrine": {
+          "id": "shrine",
+          "name": "MALEVOLENT SHRINE",
+          "cost": 80,
+          "description": "Dano continuo por 3 turnos",
+          "type": "domain",
+          "effect": "domain",
+          "damage": 0.8,
+          "duration": 3
+        }
+      },
+      "specialTraits": {
+        "blackFlashChance": {
+          "base": 20,
+          "streak1": 20,
+          "streak2": 40,
+          "streak3plus": 90
+        },
+        "energyRegeneration": "conditional"
+      }
+    },
+    "goku": {
+      "id": "goku",
+      "name": "Goku",
+      "anime": "Dragon Ball Z",
+      "description": "O Saiyajin mais poderoso do universo",
+      "baseStats": {
+        "hp": 1600,
+        "energy": 300,
+        "attack": 90,
+        "defense": 35,
+        "speed": 85,
+        "criticalChance": 10
+      },
+      "forms": {
+        "normal": {
+          "name": "Normal",
+          "cost": 0,
+          "multipliers": {
+            "attack": 1,
+            "defense": 1,
+            "speed": 1
+          }
+        },
+        "super_saiyajin": {
+          "name": "Super Saiyajin",
+          "cost": 35,
+          "multipliers": {
+            "attack": 1.5,
+            "defense": 1.3,
+            "speed": 1.4
+          }
+        },
+        "ultra_instinto": {
+          "name": "Ultra Instinto",
+          "cost": 60,
+          "multipliers": {
+            "attack": 2,
+            "defense": 1.8,
+            "speed": 2.2
+          }
+        },
+        "gohan_peek": {
+          "name": "Gohan pega o oitão pro pai",
+          "cost": 40,
+          "multipliers": {
+            "attack": 2.3,
+            "defense": 2,
+            "speed": 1.8
+          }
+        }
+      },
+      "abilities": {
+        "kamehameha": {
+          "id": "kamehameha",
+          "name": "KAMEHAMEHA",
+          "cost": 40,
+          "description": "Onda de energia lendaria",
+          "type": "damage",
+          "effect": "none",
+          "damage": 1.4
+        },
+        "genkidama": {
+          "id": "genkidama",
+          "name": "GENKIDAMA",
+          "cost": 60,
+          "description": "Bomba cosmica",
+          "type": "damage",
+          "effect": "none",
+          "damage": 2
+        },
+        "teleport": {
+          "id": "teleport",
+          "name": "Teleporte",
+          "cost": 70,
+          "description": "Esquiva com contraataque",
+          "type": "special",
+          "effect": "dodge",
+          "damage": 1.2
+        },
+        "melhor_kamehameha": {
+          "id": "melhor_kamehameha",
+          "name": "ISSO É MELHOR QUE KAMEHAMEHA",
+          "cost": 100,
+          "description": "Ataque supremo (forma especial)",
+          "type": "ultimate",
+          "effect": "none",
+          "damage": 3,
+          "requiredForm": "gohan_peek"
+        }
+      },
+      "specialTraits": {
+        "dodgeChance": 15,
+        "energyRegeneration": "defend_only"
+      }
+    },
+    "naruto": {
+      "id": "naruto",
+      "name": "Naruto",
+      "anime": "Naruto Shippuden",
+      "description": "O 7º Hokage, Jinchuriki de Kurama",
+      "baseStats": {
+        "hp": 1700,
+        "energy": 350,
+        "attack": 80,
+        "defense": 45,
+        "speed": 75,
+        "criticalChance": 8
+      },
+      "forms": {
+        "normal": {
+          "name": "Normal",
+          "cost": 0,
+          "multipliers": {
+            "attack": 1,
+            "defense": 1,
+            "speed": 1
+          }
+        },
+        "modo_kurama": {
+          "name": "Modo Kurama",
+          "cost": 45,
+          "multipliers": {
+            "attack": 1.6,
+            "defense": 1.4,
+            "speed": 1.3
+          }
+        },
+        "sabio": {
+          "name": "Sabio dos Seis Caminhos",
+          "cost": 70,
+          "multipliers": {
+            "attack": 2.1,
+            "defense": 1.7,
+            "speed": 1.8
+          }
+        }
+      },
+      "abilities": {
+        "rasengan": {
+          "id": "rasengan",
+          "name": "RASENGAN",
+          "cost": 35,
+          "description": "Esfera giratoria de chi",
+          "type": "damage",
+          "effect": "none",
+          "damage": 1.3
+        },
+        "rasenshuriken": {
+          "id": "rasenshuriken",
+          "name": "RASENSHURIKEN",
+          "cost": 55,
+          "description": "Shuriken de ar com multiplos golpes",
+          "type": "damage",
+          "effect": "none",
+          "damage": 1.8,
+          "hits": 5
+        },
+        "kurama": {
+          "id": "kurama",
+          "name": "MODO KURAMA",
+          "cost": 75,
+          "description": "Poder maximo da raposa",
+          "type": "damage",
+          "effect": "none",
+          "damage": 2.2
+        }
+      },
+      "specialTraits": {
+        "energyRegeneration": "always",
+        "cloneTechnique": true
+      }
+    },
+    "ichigo": {
+      "id": "ichigo",
+      "name": "Ichigo",
+      "anime": "Bleach",
+      "description": "Substituto Shinigami com poderes Hollow",
+      "baseStats": {
+        "hp": 1650,
+        "energy": 500,
+        "attack": 88,
+        "defense": 38,
+        "speed": 80,
+        "criticalChance": 12
+      },
+      "forms": {
+        "normal": {
+          "name": "Normal",
+          "cost": 0,
+          "multipliers": {
+            "attack": 1,
+            "defense": 1,
+            "speed": 1
+          }
+        },
+        "bankai": {
+          "name": "Bankai",
+          "cost": 50,
+          "multipliers": {
+            "attack": 1.7,
+            "defense": 1.5,
+            "speed": 1.6
+          }
+        },
+        "arrancar": {
+          "name": "Ichigo Arrancar",
+          "cost": 45,
+          "multipliers": {
+            "attack": 1.9,
+            "defense": 1.6,
+            "speed": 1.8
+          }
+        }
+      },
+      "abilities": {
+        "getsuga": {
+          "id": "getsuga",
+          "name": "GETSUGA TENSHO",
+          "cost": 40,
+          "description": "Ataque lunar classico",
+          "type": "damage",
+          "effect": "none",
+          "damage": 1.4
+        },
+        "bankai": {
+          "id": "bankai",
+          "name": "BANKAI",
+          "cost": 60,
+          "description": "Forma final da Zanpakuto",
+          "type": "transform",
+          "effect": "none",
+          "damage": 0
+        },
+        "hollow": {
+          "id": "hollow",
+          "name": "HOLLOW FORM",
+          "cost": 50,
+          "description": "Transformacao sinistra",
+          "type": "damage",
+          "effect": "none",
+          "damage": 1.8
+        },
+        "mugetsu": {
+          "id": "mugetsu",
+          "name": "MUGETSU",
+          "cost": 0,
+          "description": "Ataque final (apenas com 10% HP)",
+          "type": "ultimate",
+          "effect": "none",
+          "damage": 5,
+          "condition": "hp_below_10"
+        }
+      },
+      "specialTraits": {
+        "mugetsuOnce": true,
+        "energyRegeneration": "conditional"
+      }
+    }
+  },
+  "effects": {
+    "bleed": {
+      "name": "Sangramento",
+      "icon": "🩸",
+      "damage": 0.05,
+      "duration": 3,
+      "description": "Dano contínuo por turnos"
+    },
+    "burn": {
+      "name": "Queimadura",
+      "icon": "🔥",
+      "damage": 0.08,
+      "duration": 3,
+      "description": "Dano de fogo contínuo"
+    },
+    "domain": {
+      "name": "Expansão de Domínio",
+      "icon": "🏯",
+      "damage": 0.05,
+      "duration": 3,
+      "description": "Dano de domínio contínuo"
+    },
+    "heal_cleanse": {
+      "name": "Cura e Purificação",
+      "icon": "💚",
+      "healing": 0.4,
+      "removeEffects": true,
+      "description": "Cura e remove efeitos negativos"
+    },
+    "jackpot_mode": {
+      "name": "Jackpot",
+      "icon": "🎰",
+      "duration": 3,
+      "multipliers": {
+        "attack": 2.5,
+        "defense": 2,
+        "speed": 1.8
+      },
+      "description": "Poder absoluto temporário"
+    },
+    "sure_hit": {
+      "name": "Golpe Garantido",
+      "icon": "✅",
+      "accuracy": 100,
+      "description": "Ataque que sempre acerta"
+    },
+    "armor_break": {
+      "name": "Quebra de Armadura",
+      "icon": "💥",
+      "defenseReduce": 0.3,
+      "duration": 2,
+      "description": "Reduz defesa do alvo"
+    }
+  },
+  "attackTypes": {
+    "damage": {
+      "name": "Dano",
+      "color": "red",
+      "description": "Causa dano direto"
+    },
+    "support": {
+      "name": "Suporte",
+      "color": "green",
+      "description": "Cura ou buffa aliados"
+    },
+    "special": {
+      "name": "Especial",
+      "color": "blue",
+      "description": "Efeitos especiais únicos"
+    },
+    "ultimate": {
+      "name": "Supremo",
+      "color": "purple",
+      "description": "Ataques poderosos com condições especiais"
+    },
+    "transform": {
+      "name": "Transformação",
+      "color": "yellow",
+      "description": "Muda a forma do personagem"
+    },
+    "domain": {
+      "name": "Domínio",
+      "color": "darkred",
+      "description": "Técnicas de expansão de domínio"
+    }
+  }
+}

@@ -99,10 +99,10 @@ class BattleManager {
                 // Mensagem combinada mais organizada
                 $message = $result['message'];
                 
-                // Adiciona informação de custo de forma se houver
+                // Adiciona informação de custo de manutenção de forma se houver
                 $formResult = $char->maintainForm();
                 if ($formResult['energyLost'] > 0) {
-                    $message .= " | Forma gastou " . $formResult['energyLost'] . " de energia";
+                    $message .= " | Forma consumiu " . $formResult['energyLost'] . " EN";
                 }
                 if ($formResult['reverted']) {
                     $message .= " | Perdeu a transformação!";

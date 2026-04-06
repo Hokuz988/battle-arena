@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * BATTLE ARENA - TERMINAL GAME v3.0

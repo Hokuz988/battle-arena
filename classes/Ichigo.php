@@ -1,18 +1,23 @@
 <?php
 // classes/Ichigo.php
 require_once 'Character.php';
+require_once __DIR__ . '/../config/CharacterDatabase.php';
 
 class Ichigo extends Character {
     private $baseStats = [];
     private $mugetsuUsed = false;
     
     public function __construct($name) {
+        // Carrega stats do JSON
+        $db = CharacterDatabase::getInstance();
+        $stats = $db->getCharacterBaseStats('ichigo');
+        
         $this->type = "Ichigo";
-        $this->maxHp = 1700;
-        $this->maxEnergy = 130;
-        $this->attack = 80;
-        $this->defense = 75;
-        $this->speed = 70;
+        $this->maxHp = $stats['hp'];
+        $this->maxEnergy = $stats['energy'];
+        $this->attack = $stats['attack'];
+        $this->defense = $stats['defense'];
+        $this->speed = $stats['speed'];
         
         // Guarda stats base para reset
         $this->baseStats = [

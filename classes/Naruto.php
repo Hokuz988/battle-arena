@@ -1,17 +1,22 @@
 <?php
 // classes/Naruto.php
 require_once 'Character.php';
+require_once __DIR__ . '/../config/CharacterDatabase.php';
 
 class Naruto extends Character {
     private $baseStats = [];
     
     public function __construct($name) {
+        // Carrega stats do JSON
+        $db = CharacterDatabase::getInstance();
+        $stats = $db->getCharacterBaseStats('naruto');
+        
         $this->type = "Naruto";
-        $this->maxHp = 1950;
-        $this->maxEnergy = 160;
-        $this->attack = 75;
-        $this->defense = 80;
-        $this->speed = 65;
+        $this->maxHp = $stats['hp'];
+        $this->maxEnergy = $stats['energy'];
+        $this->attack = $stats['attack'];
+        $this->defense = $stats['defense'];
+        $this->speed = $stats['speed'];
         
         // Guarda stats base para reset
         $this->baseStats = [

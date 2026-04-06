@@ -16,6 +16,7 @@ abstract class Character implements ActionInterface {
     protected $effects = [];
     protected $currentForm = 'Normal';
     protected $formCost = 0;
+    protected $formActivationCost = 0;
     protected $blackFlashStreak = 0;
     protected $isDefending = false;
     protected $stats = [
@@ -329,6 +330,12 @@ abstract class Character implements ActionInterface {
         
         $charCosts = $custos[$this->type] ?? [];
         $this->formCost = $charCosts[$formName] ?? 0;
+        $this->formActivationCost = $this->formCost;
+        
+        // Debita a energia quando a forma é ativada (custo inteiro)
+        if ($this->formCost > 0) {
+            $this->currentEnergy = max(0, $this->currentEnergy - $this->formCost);
+        }
         
         // Aplica bônus da forma
         switch ($formName) {
@@ -386,9 +393,9 @@ abstract class Character implements ActionInterface {
             return ['reverted' => true, 'energyLost' => 0];
         }
         
-        // Aplica custo de manutenção (10% do custo de ativação)
-        if ($this->currentForm !== 'Normal' && $this->formCost > 0) {
-            $maintenanceCost = max(1, floor($this->formCost * 0.1));
+        // Aplica custo de manutenção (75% do custo de ativação por turno)
+        if ($this->currentForm !== 'Normal' && $this->formActivationCost > 0) {
+            $maintenanceCost = max(1, floor($this->formActivationCost * 0.75));
             $oldEnergy = $this->currentEnergy;
             $this->currentEnergy = max(0, $this->currentEnergy - $maintenanceCost);
             $energyLost = $oldEnergy - $this->currentEnergy;
@@ -449,9 +456,7 @@ abstract class Character implements ActionInterface {
     protected function playBurnSound() {
         $audioFile = __DIR__ . '/../Audios/gta-san-andreas-cj-on-fire-sound.mp3';
         
-        // Verifica se o arquivo de áudio existe
         if (file_exists($audioFile)) {
-            // Toca o áudio por 5 segundos em background, sem bloquear
             $command = "timeout 5s ffplay -nodisp -autoexit '$audioFile' >/dev/null 2>&1 &";
             exec($command);
         }

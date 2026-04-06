@@ -1,17 +1,22 @@
 <?php
 // classes/Sukuna.php
 require_once 'Character.php';
+require_once __DIR__ . '/../config/CharacterDatabase.php';
 
 class Sukuna extends Character {
     private $baseStats = [];
     
     public function __construct($name) {
+        // Carrega stats do JSON
+        $db = CharacterDatabase::getInstance();
+        $stats = $db->getCharacterBaseStats('sukuna');
+        
         $this->type = "Sukuna";
-        $this->maxHp = 1800;
-        $this->maxEnergy = 120;
-        $this->attack = 85;
-        $this->defense = 40;
-        $this->speed = 70;
+        $this->maxHp = $stats['hp'];
+        $this->maxEnergy = $stats['energy'];
+        $this->attack = $stats['attack'];
+        $this->defense = $stats['defense'];
+        $this->speed = $stats['speed'];
         
         // Guarda stats base para reset
         $this->baseStats = [
@@ -248,9 +253,7 @@ class Sukuna extends Character {
         // Verifica se o inimigo tem o efeito 'domain' (Expansão de Domínio)
         $enemyEffects = $target->getEffects();
         $hasDomain = false;
-        
-        // Debug: verificar os efeitos do inimigo
-        if (!empty($enemyEffects)) {
+                if (!empty($enemyEffects)) {
             foreach ($enemyEffects as $effect) {
                 if ($effect['type'] === 'domain') {
                     $hasDomain = true;
@@ -260,18 +263,15 @@ class Sukuna extends Character {
         }
         
         if ($hasDomain) {
-            // KAMINO FUGA - Ataca o inimigo
             echo "\n🔥 KAMINO FUGA ATIVADO! 🔥\n";
             sleep(1);
             
             $damage = $this->attack * 2.2 - $target->getDefense() * 0.3;
             $damage = max(self::MIN_DAMAGE, $damage);
             
-            // Adiciona variação aleatória ao dano: -7 a +3
             $damage += rand(-7, 3);
             $damage = max(self::MIN_DAMAGE, $damage);
             
-            // Aplica dano diretamente
             $target->takeDamage($damage);
             
             return [
@@ -280,25 +280,21 @@ class Sukuna extends Character {
                 'message' => "{$this->name} usou KAMINO FUGA causando " . round($damage) . " de dano!"
             ];
         } else {
-            // FUGA normal - Causa dano e aplica burn no inimigo
             $damage = $this->attack * 1.2;
             $damage = max(self::MIN_DAMAGE, $damage);
             
-            // Adiciona variação aleatória ao dano: -7 a +3
             $damage += rand(-7, 3);
             $damage = max(self::MIN_DAMAGE, $damage);
             
             // Aplica dano ao inimigo
             $target->takeDamage($damage);
             
-            // Aplica burn no inimigo
             $target->addEffect([
                 'type' => 'burn',
                 'duration' => 3,
                 'icon' => '🔥'
             ]);
             
-            // Toca áudio de burn ao aplicar o efeito (não bloqueante)
             $this->playBurnSound();
             
             return [
